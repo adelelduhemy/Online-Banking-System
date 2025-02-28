@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Online Banking</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav>
+    <a href="index.html">🏠 Home</a>
+    <button id="logout">🚪 Logout</button>
+  </nav>
+
+  <!-- Dashboard Section -->
+  <div class="dashboard">
+    <h1>Dashboard</h1>
+
+    <!-- User Information -->
+    <div class="user-info">
+      <p>👋 Welcome, <span id="userName"></span>!</p>
+      <p>🏦 Account Number: <span id="accountNumber"></span></p>
+      <p>💰 Current Balance: $<span id="balance"></span></p>
+    </div>
+
+    <!-- Features Section -->
+    <div class="features">
+
+      <!-- Transfer Money -->
+      <div class="feature" id="transferSection">
+        <h2>💸 Transfer Money</h2>
+        <form id="transferForm">
+          <input type="text" id="recipient" placeholder="Recipient Account Number" required>
+          <input type="number" id="amount" placeholder="Amount" required>
+          <button type="submit">Transfer</button>
+        </form>
+        <p id="transferStatus"></p>
+      </div>
+
+      <!-- Transaction History -->
+      <div class="feature">
+        <h2>📜 Transaction History</h2>
+        <ul id="transactionHistory">Loading transactions...</ul>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user'));
+
+    // Redirect if not authenticated
+    if (!user || !token) {
+      alert('❌ You must log in first.');
+      window.location.href = 'login.html';
+    } else {
+      document.getElementById('userName').textContent = user.name;
+      document.getElementById('accountNumber').textContent = user.accountNumber;
+
+      // Fetch and update balance
+      fetch('/api/balance', {
+        headers: { 'Authorization': token },
+      })
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById('balance').textContent = data.balance;
+        })
+        .catch(err => console.error('Error fetching balance:', err));
+
+      // Fetch and display transaction history
+      fetch('/api/transactions', {
+        headers: { 'Authorization': token },
+      })
+        .then(response => response.json())
+        .then(data => {
+          const history = document.getElementById('transactionHistory');
+          history.innerHTML = '';
+
+          if (data.length === 0) {
+            history.innerHTML = '<li>No transactions found.</li>';
+          } else {
+            data.forEach(transaction => {
+              const li = document.createElement('li');
+              li.textContent = `💵 $${transaction.amount} to ${transaction.recipient} on ${new Date(transaction.date).toLocaleString()}`;
+              history.appendChild(li);
+            });
+          }
+        })
+        .catch(err => console.error('Error fetching transactions:', err));
+    }
+
+    // Transfer Money Form Submission
+    document.getElementById('transferForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const recipient = document.getElementById('recipient').value;
+      const amount = parseFloat(document.getElementById('amount').value);
+
+      if (!recipient || amount <= 0) {
+        alert('❌ Please enter a valid recipient and amount.');
+        return;
+      }
+
+      const response = await fetch('/api/transfer', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token,
+        },
+        body: JSON.stringify({ recipient, amount }),
+      });
+
+      const data = await response.json();
+      document.getElementById('transferStatus').textContent = data.message;
+
+      if (response.ok) {
+        alert('✅ Transfer successful!');
+        window.location.reload();
+      }
+    });
+
+    // Logout Functionality
+    document.getElementById('logout')?.addEventListener('click', () => {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = 'login.html';
+    });
+  </script>
+
+</body>
+</html>

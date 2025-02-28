@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - Online Banking</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="login.html">Login</a>
+    <a href="register.html">Register</a>
+  </nav>
+
+  <!-- Registration Form -->
+  <div class="form-container">
+    <h2>Register</h2>
+    <form id="registerForm">
+      <input type="text" id="name" placeholder="Full Name" required>
+      <input type="email" id="email" placeholder="Email Address" required>
+      <input type="password" id="password" placeholder="Password" required>
+      <p id="passwordStrength" class="info"></p> <!-- Password Strength Indicator -->
+      <button type="submit">Register</button>
+    </form>
+    <p id="error" class="error"></p>
+  </div>
+
+  <script>
+    // Password Strength Indicator
+    document.getElementById('password').addEventListener('input', function () {
+      const password = this.value;
+      const strengthMessage = document.getElementById('passwordStrength');
+
+      if (password.length < 6) {
+        strengthMessage.textContent = '❌ Password too short!';
+        strengthMessage.style.color = 'red';
+      } else if (password.length < 10) {
+        strengthMessage.textContent = '⚠️ Medium strength';
+        strengthMessage.style.color = 'orange';
+      } else {
+        strengthMessage.textContent = '✅ Strong password';
+        strengthMessage.style.color = 'green';
+      }
+    });
+
+    // Registration Form Submission
+    document.getElementById('registerForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      try {
+        const response = await fetch('/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password }),
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          alert('✅ Registration successful! Redirecting to login...');
+          window.location.href = 'login.html';
+        } else {
+          document.getElementById('error').textContent = '❌ ' + data.message;
+        }
+      } catch (error) {
+        console.error('Registration error:', error);
+        document.getElementById('error').textContent = '❌ Server error. Please try again.';
+      }
+    });
+  </script>
+
+</body>
+</html>
