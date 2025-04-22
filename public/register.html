@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Register - Online Banking</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -15,19 +15,28 @@
     <a href="register.html">Register</a>
   </nav>
 
-  <!-- Registration Form -->
-  <div class="form-container">
-    <h2>Register</h2>
-    <form id="registerForm">
-      <input type="text" id="name" placeholder="Full Name" required>
-      <input type="email" id="email" placeholder="Email Address" required>
-      <input type="password" id="password" placeholder="Password" required>
-      <p id="passwordStrength" class="info"></p> <!-- Password Strength Indicator -->
-      <button type="submit">Register</button>
-    </form>
-    <p id="error" class="error"></p>
-  </div>
+  <!-- Registration Section -->
+  <main>
+    <section class="form-container">
+      <h2>Create Your Account</h2>
+      <form id="registerForm">
+        <label for="name">Full Name</label>
+        <input type="text" id="name" placeholder="Full Name" required />
 
+        <label for="email">Email Address</label>
+        <input type="email" id="email" placeholder="Email Address" required />
+
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Password" required />
+        <p id="passwordStrength" class="info"></p>
+
+        <button type="submit">Register</button>
+      </form>
+      <p id="error" class="error"></p>
+    </section>
+  </main>
+
+  <!-- JS Logic -->
   <script>
     // Password Strength Indicator
     document.getElementById('password').addEventListener('input', function () {
@@ -47,7 +56,7 @@
     });
 
     // Registration Form Submission
-    document.getElementById('registerForm')?.addEventListener('submit', async (e) => {
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const name = document.getElementById('name').value;
       const email = document.getElementById('email').value;

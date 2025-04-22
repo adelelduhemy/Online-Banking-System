@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Contact Us - Online Banking</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -16,21 +16,30 @@
     <a href="contact.html">Contact</a>
   </nav>
 
-  <!-- Contact Form -->
-  <div class="form-container">
-    <h2>📩 Contact Us</h2>
-    <p>If you have any inquiries, feel free to reach out!</p>
-    
-    <form id="contactForm">
-      <input type="text" id="contactName" placeholder="Your Name" required>
-      <input type="email" id="contactEmail" placeholder="Your Email" required>
-      <textarea id="contactMessage" placeholder="Your Message" rows="4" required></textarea>
-      <button type="submit">Send Message</button>
-    </form>
+  <!-- Contact Section -->
+  <main>
+    <section class="form-container">
+      <h2>📩 Contact Us</h2>
+      <p>If you have any inquiries, feel free to reach out!</p>
 
-    <p id="contactStatus" class="status-message"></p>
-  </div>
+      <form id="contactForm">
+        <label for="contactName">Your Name</label>
+        <input type="text" id="contactName" placeholder="Your Name" required />
 
+        <label for="contactEmail">Your Email</label>
+        <input type="email" id="contactEmail" placeholder="Your Email" required />
+
+        <label for="contactMessage">Your Message</label>
+        <textarea id="contactMessage" placeholder="Your Message" rows="4" required></textarea>
+
+        <button type="submit">Send Message</button>
+      </form>
+
+      <p id="contactStatus" class="status-message"></p>
+    </section>
+  </main>
+
+  <!-- JavaScript -->
   <script>
     document.getElementById('contactForm')?.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -46,18 +55,21 @@
         });
 
         const data = await response.json();
+        const statusMsg = document.getElementById('contactStatus');
+
         if (response.ok) {
-          document.getElementById('contactStatus').textContent = '✅ Message sent successfully!';
-          document.getElementById('contactStatus').style.color = 'green';
+          statusMsg.textContent = '✅ Message sent successfully!';
+          statusMsg.style.color = 'green';
           document.getElementById('contactForm').reset();
         } else {
-          document.getElementById('contactStatus').textContent = '❌ ' + data.message;
-          document.getElementById('contactStatus').style.color = 'red';
+          statusMsg.textContent = '❌ ' + data.message;
+          statusMsg.style.color = 'red';
         }
       } catch (error) {
         console.error('Contact form error:', error);
-        document.getElementById('contactStatus').textContent = '❌ Server error. Please try again.';
-        document.getElementById('contactStatus').style.color = 'red';
+        const statusMsg = document.getElementById('contactStatus');
+        statusMsg.textContent = '❌ Server error. Please try again.';
+        statusMsg.style.color = 'red';
       }
     });
   </script>
