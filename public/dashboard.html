@@ -10,51 +10,150 @@
 
   <!-- Navigation -->
   <nav>
-    <a href="index.html">🏠 Home</a>
-    <button id="logout">🚪 Logout</button>
+    <div class="nav-left">
+      <a href="index.html">🏦 <strong>OnlineBank</strong></a>
+    </div>
+    <div class="nav-right">
+      <a href="index.html">🏠 Home</a>
+      <button id="logout">🚪 Logout</button>
+    </div>
   </nav>
 
   <!-- Dashboard Content -->
   <main>
     <section class="dashboard">
-      <h1>Dashboard</h1>
+      <h1>💼 Dashboard</h1>
 
       <!-- User Info -->
       <div class="user-info">
-        <p>👋 Welcome, <span id="userName"></span>!</p>
+        <p>👋 Welcome back, <span id="userName"></span>!</p>
         <p>🏦 Account Number: <span id="accountNumber"></span></p>
-        <p>💰 Current Balance: $<span id="balance"></span></p>
+        <p>💰 Checking Balance: $<span id="balance"></span></p>
+        <p>💳 Savings Balance: $<span id="savingsBalance"></span></p>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="quick-actions">
+        <button class="action-btn" onclick="showDepositModal()">💰 Deposit</button>
+        <button class="action-btn" onclick="showWithdrawModal()">💸 Withdraw</button>
+        <button class="action-btn" onclick="showTransferModal()">🔄 Transfer</button>
+        <button class="action-btn" onclick="showCategories()">📊 Categories</button>
       </div>
 
       <!-- Features -->
       <div class="features">
 
-        <!-- Transfer Section -->
-        <section id="transferSection">
-          <h2>💸 Transfer Money</h2>
-          <form id="transferForm">
-            <label for="recipient">Recipient Account Number</label>
-            <input type="text" id="recipient" required />
-
-            <label for="amount">Amount</label>
-            <input type="number" id="amount" required />
-
-            <button type="submit">Transfer</button>
-          </form>
-          <p id="transferStatus"></p>
+        <!-- Account Summary -->
+        <section class="feature">
+          <h2>📊 Account Summary</h2>
+          <div id="accountSummary">
+            <div class="summary-card">
+              <h3>Recent Activity</h3>
+              <div id="recentActivity">Loading...</div>
+            </div>
+            <div class="summary-card">
+              <h3>Spending by Category</h3>
+              <div id="spendingChart">Loading...</div>
+            </div>
+          </div>
         </section>
 
-        <!-- Transactions -->
-        <section>
+        <!-- Transaction History -->
+        <section class="feature">
           <h2>📜 Transaction History</h2>
+          <div class="transaction-filters">
+            <select id="categoryFilter">
+              <option value="">All Categories</option>
+            </select>
+            <select id="typeFilter">
+              <option value="">All Types</option>
+              <option value="transfer">Transfer</option>
+              <option value="deposit">Deposit</option>
+              <option value="withdrawal">Withdrawal</option>
+              <option value="payment">Payment</option>
+            </select>
+          </div>
           <ul id="transactionHistory">
-            <li>Loading transactions...</li>
+            <li>⏳ Loading transactions...</li>
           </ul>
         </section>
 
       </div>
     </section>
   </main>
+
+  <!-- Deposit Modal -->
+  <div id="depositModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('depositModal')">&times;</span>
+      <h2>💰 Deposit Money</h2>
+      <form id="depositForm">
+        <label for="depositAmount">Amount ($)</label>
+        <input type="number" id="depositAmount" placeholder="Enter amount" step="0.01" min="0.01" required />
+        
+        <label for="depositMethod">Method</label>
+        <select id="depositMethod">
+          <option value="online">Online</option>
+          <option value="bank_transfer">Bank Transfer</option>
+          <option value="check">Check</option>
+        </select>
+        
+        <label for="depositDescription">Description</label>
+        <input type="text" id="depositDescription" placeholder="Optional description" />
+        
+        <button type="submit">💰 Deposit</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Withdraw Modal -->
+  <div id="withdrawModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('withdrawModal')">&times;</span>
+      <h2>💸 Withdraw Money</h2>
+      <form id="withdrawForm">
+        <label for="withdrawAmount">Amount ($)</label>
+        <input type="number" id="withdrawAmount" placeholder="Enter amount" step="0.01" min="0.01" required />
+        
+        <label for="withdrawMethod">Method</label>
+        <select id="withdrawMethod">
+          <option value="online">Online</option>
+          <option value="bank_transfer">Bank Transfer</option>
+          <option value="cash">Cash</option>
+        </select>
+        
+        <label for="withdrawDescription">Description</label>
+        <input type="text" id="withdrawDescription" placeholder="Optional description" />
+        
+        <button type="submit">💸 Withdraw</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Transfer Modal -->
+  <div id="transferModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('transferModal')">&times;</span>
+      <h2>🔄 Transfer Money</h2>
+      <form id="transferForm">
+        <label for="recipient">Recipient Account Number</label>
+        <input type="text" id="recipient" placeholder="Enter account number" required />
+        
+        <label for="amount">Amount ($)</label>
+        <input type="number" id="amount" placeholder="Enter amount" step="0.01" min="0.01" required />
+        
+        <label for="transferCategory">Category</label>
+        <select id="transferCategory">
+          <option value="other">Other</option>
+        </select>
+        
+        <label for="transferDescription">Description</label>
+        <input type="text" id="transferDescription" placeholder="Optional description" />
+        
+        <button type="submit">🚀 Send Transfer</button>
+      </form>
+    </div>
+  </div>
 
   <!-- JavaScript -->
   <script>
@@ -65,68 +164,335 @@
       alert('❌ You must log in first.');
       window.location.href = 'login.html';
     } else {
-      document.getElementById('userName').textContent = user.name;
-      document.getElementById('accountNumber').textContent = user.accountNumber;
-
-      // Get balance
-      fetch('/api/balance', {
-        headers: { 'Authorization': token },
-      })
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById('balance').textContent = data.balance;
-      })
-      .catch(err => console.error('Balance error:', err));
-
-      // Get transaction history
-      fetch('/api/transactions', {
-        headers: { 'Authorization': token },
-      })
-      .then(res => res.json())
-      .then(data => {
-        const list = document.getElementById('transactionHistory');
-        list.innerHTML = '';
-        if (!data.length) {
-          list.innerHTML = '<li>No transactions found.</li>';
-        } else {
-          data.forEach(tx => {
-            const li = document.createElement('li');
-            li.textContent = `💵 $${tx.amount} to ${tx.recipient} on ${new Date(tx.date).toLocaleString()}`;
-            list.appendChild(li);
-          });
+      // Session Management - Auto logout after 30 minutes of inactivity
+      let lastActivity = Date.now();
+      const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+      
+      // Update last activity on user interaction
+      function updateActivity() {
+        lastActivity = Date.now();
+      }
+      
+      // Check for inactivity every minute
+      setInterval(() => {
+        if (Date.now() - lastActivity > SESSION_TIMEOUT) {
+          alert('⏰ Session expired due to inactivity. Please log in again.');
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          window.location.href = 'login.html';
         }
-      })
-      .catch(err => console.error('Transaction error:', err));
+      }, 60000); // Check every minute
+      
+      // Add event listeners for user activity
+      ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'].forEach(event => {
+        document.addEventListener(event, updateActivity, true);
+      });
+
+      // Initialize dashboard
+      initializeDashboard();
     }
 
-    // Transfer money
+    async function initializeDashboard() {
+      try {
+        // Load account summary
+        const summaryResponse = await fetch('/api/account-summary', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const summary = await summaryResponse.json();
+        
+        // Update user info
+        document.getElementById('userName').textContent = user.name;
+        document.getElementById('accountNumber').textContent = summary.accountNumber;
+        document.getElementById('balance').textContent = summary.balance.toFixed(2);
+        document.getElementById('savingsBalance').textContent = (summary.savingsBalance || 0).toFixed(2);
+
+        // Load transaction categories
+        await loadTransactionCategories();
+        
+        // Load recent activity
+        displayRecentActivity(summary.recentTransactions);
+        
+        // Load spending chart
+        displaySpendingChart(summary.spendingByCategory);
+        
+        // Load transactions
+        await loadTransactions();
+        
+      } catch (error) {
+        console.error('Dashboard initialization error:', error);
+      }
+    }
+
+    async function loadTransactionCategories() {
+      try {
+        const response = await fetch('/api/transaction-categories', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const categories = await response.json();
+        
+        // Populate category filters
+        const categoryFilter = document.getElementById('categoryFilter');
+        const transferCategory = document.getElementById('transferCategory');
+        
+        categories.forEach(category => {
+          const option1 = new Option(category.label, category.value);
+          const option2 = new Option(category.label, category.value);
+          categoryFilter.add(option1);
+          transferCategory.add(option2);
+        });
+      } catch (error) {
+        console.error('Error loading categories:', error);
+      }
+    }
+
+    function displayRecentActivity(transactions) {
+      const container = document.getElementById('recentActivity');
+      if (!transactions || transactions.length === 0) {
+        container.innerHTML = '<p>No recent activity</p>';
+        return;
+      }
+      
+      container.innerHTML = transactions.map(tx => `
+        <div class="activity-item">
+          <span class="activity-icon">${getTransactionIcon(tx.type)}</span>
+          <div class="activity-details">
+            <p>${tx.description || getTransactionDescription(tx)}</p>
+            <small>${new Date(tx.date).toLocaleDateString()}</small>
+          </div>
+          <span class="activity-amount ${tx.sender === user.accountNumber ? 'negative' : 'positive'}">
+            ${tx.sender === user.accountNumber ? '-' : '+'}$${tx.amount.toFixed(2)}
+          </span>
+        </div>
+      `).join('');
+    }
+
+    function displaySpendingChart(spendingData) {
+      const container = document.getElementById('spendingChart');
+      if (!spendingData || spendingData.length === 0) {
+        container.innerHTML = '<p>No spending data available</p>';
+        return;
+      }
+      
+      const total = spendingData.reduce((sum, item) => sum + item.total, 0);
+      
+      container.innerHTML = spendingData.map(item => `
+        <div class="spending-item">
+          <div class="spending-label">
+            <span class="spending-category">${getCategoryLabel(item._id)}</span>
+            <span class="spending-percentage">${((item.total / total) * 100).toFixed(1)}%</span>
+          </div>
+          <div class="spending-bar">
+            <div class="spending-fill" style="width: ${(item.total / total) * 100}%"></div>
+          </div>
+          <span class="spending-amount">$${item.total.toFixed(2)}</span>
+        </div>
+      `).join('');
+    }
+
+    async function loadTransactions() {
+      try {
+        const category = document.getElementById('categoryFilter').value;
+        const type = document.getElementById('typeFilter').value;
+        
+        const params = new URLSearchParams();
+        if (category) params.append('category', category);
+        if (type) params.append('type', type);
+        
+        const response = await fetch(`/api/transactions?${params}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const transactions = await response.json();
+        
+        displayTransactions(transactions);
+      } catch (error) {
+        console.error('Error loading transactions:', error);
+      }
+    }
+
+    function displayTransactions(transactions) {
+      const list = document.getElementById('transactionHistory');
+      if (!transactions || transactions.length === 0) {
+        list.innerHTML = '<li>No transactions found.</li>';
+        return;
+      }
+      
+      list.innerHTML = transactions.map(tx => `
+        <li class="transaction-item">
+          <div class="transaction-icon">${getTransactionIcon(tx.type)}</div>
+          <div class="transaction-details">
+            <p class="transaction-description">${tx.description || getTransactionDescription(tx)}</p>
+            <small class="transaction-date">${new Date(tx.date).toLocaleString()}</small>
+            <span class="transaction-category">${getCategoryLabel(tx.category)}</span>
+          </div>
+          <div class="transaction-amount ${tx.sender === user.accountNumber ? 'negative' : 'positive'}">
+            ${tx.sender === user.accountNumber ? '-' : '+'}$${tx.amount.toFixed(2)}
+          </div>
+        </li>
+      `).join('');
+    }
+
+    // Modal functions
+    function showDepositModal() {
+      document.getElementById('depositModal').style.display = 'block';
+    }
+
+    function showWithdrawModal() {
+      document.getElementById('withdrawModal').style.display = 'block';
+    }
+
+    function showTransferModal() {
+      document.getElementById('transferModal').style.display = 'block';
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).style.display = 'none';
+    }
+
+    function showCategories() {
+      alert('📊 Transaction Categories:\n\n🍔 Food & Dining\n🚗 Transportation\n🎬 Entertainment\n⚡ Utilities\n🏥 Healthcare\n🛍️ Shopping\n📚 Education\n✈️ Travel\n📦 Other');
+    }
+
+    // Form handlers
+    document.getElementById('depositForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const amount = parseFloat(document.getElementById('depositAmount').value);
+      const method = document.getElementById('depositMethod').value;
+      const description = document.getElementById('depositDescription').value;
+
+      console.log('💰 Frontend deposit attempt:', { amount, method, description });
+      console.log('🔑 Token available:', !!token);
+
+      if (!amount || amount <= 0) {
+        alert('❌ Please enter a valid amount');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/deposit', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ amount, method, description })
+        });
+
+        console.log('📡 Response status:', response.status);
+        const data = await response.json();
+        console.log('📡 Response data:', data);
+
+        if (response.ok) {
+          alert('✅ Deposit successful!');
+          closeModal('depositModal');
+          initializeDashboard();
+        } else {
+          alert('❌ ' + data.message);
+        }
+      } catch (error) {
+        console.error('❌ Deposit error details:', error);
+        alert('❌ Deposit failed. Please try again. Check console for details.');
+      }
+    });
+
+    document.getElementById('withdrawForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const amount = parseFloat(document.getElementById('withdrawAmount').value);
+      const method = document.getElementById('withdrawMethod').value;
+      const description = document.getElementById('withdrawDescription').value;
+
+      try {
+        const response = await fetch('/api/withdraw', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ amount, method, description })
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          alert('✅ Withdrawal successful!');
+          closeModal('withdrawModal');
+          initializeDashboard();
+        } else {
+          alert('❌ ' + data.message);
+        }
+      } catch (error) {
+        console.error('Withdrawal error:', error);
+        alert('❌ Withdrawal failed. Please try again.');
+      }
+    });
+
     document.getElementById('transferForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const recipient = document.getElementById('recipient').value;
       const amount = parseFloat(document.getElementById('amount').value);
+      const category = document.getElementById('transferCategory').value;
+      const description = document.getElementById('transferDescription').value;
 
-      if (!recipient || amount <= 0) {
-        alert('❌ Please enter valid details.');
-        return;
-      }
+      try {
+        const response = await fetch('/api/transfer', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ recipient, amount, category, description })
+        });
 
-      const res = await fetch('/api/transfer', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': token
-        },
-        body: JSON.stringify({ recipient, amount })
-      });
-
-      const data = await res.json();
-      document.getElementById('transferStatus').textContent = data.message;
-
-      if (res.ok) {
-        alert('✅ Transfer successful!');
-        window.location.reload();
+        const data = await response.json();
+        if (response.ok) {
+          alert('✅ Transfer successful!');
+          closeModal('transferModal');
+          initializeDashboard();
+        } else {
+          alert('❌ ' + data.message);
+        }
+      } catch (error) {
+        console.error('Transfer error:', error);
+        alert('❌ Transfer failed. Please try again.');
       }
     });
+
+    // Filter change handlers
+    document.getElementById('categoryFilter').addEventListener('change', loadTransactions);
+    document.getElementById('typeFilter').addEventListener('change', loadTransactions);
+
+    // Helper functions
+    function getTransactionIcon(type) {
+      const icons = {
+        'transfer': '🔄',
+        'deposit': '💰',
+        'withdrawal': '💸',
+        'payment': '💳',
+        'refund': '↩️',
+        'fee': '💸'
+      };
+      return icons[type] || '💵';
+    }
+
+    function getTransactionDescription(tx) {
+      if (tx.type === 'deposit') return 'Deposit';
+      if (tx.type === 'withdrawal') return 'Withdrawal';
+      if (tx.type === 'transfer') return `Transfer to ${tx.recipient}`;
+      return tx.type;
+    }
+
+    function getCategoryLabel(category) {
+      const labels = {
+        'food': '🍔 Food',
+        'transportation': '🚗 Transport',
+        'entertainment': '🎬 Entertainment',
+        'utilities': '⚡ Utilities',
+        'healthcare': '🏥 Healthcare',
+        'shopping': '🛍️ Shopping',
+        'education': '📚 Education',
+        'travel': '✈️ Travel',
+        'other': '📦 Other'
+      };
+      return labels[category] || '📦 Other';
+    }
 
     // Logout
     document.getElementById('logout').addEventListener('click', () => {
@@ -134,6 +500,16 @@
       localStorage.removeItem('user');
       window.location.href = 'login.html';
     });
+
+    // Close modals when clicking outside
+    window.onclick = function(event) {
+      const modals = document.querySelectorAll('.modal');
+      modals.forEach(modal => {
+        if (event.target === modal) {
+          modal.style.display = 'none';
+        }
+      });
+    }
   </script>
 
 </body>
